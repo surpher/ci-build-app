@@ -1,0 +1,31 @@
+name: Build and test the APP
+on: [push, repository_dispatch]
+jobs:
+  run_tests:
+    name: Run bogus tests
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Send In Progress status back to Framework repo PR
+        run: |
+          echo "Send API request (in progress)"
+          echo 'TRIGGER:  '${{ github.event.client_payload.sha }}
+          echo 'CALLBACk: https://api.github.com/repos/surpher/ci-build-framework/statuses/'"${{ github.event.client_payload.sha }}"
+          echo 'PAYLOAD:  {"state":"pending","target_url":"https://github.com/surpher/ci-build-app/runs/'"${{ github.run_id }}"'","description":"Build and Test APP build: '"${{ github.run_id }}"'","context":"default"}'
+          curl -XPOST -u "${{ secrets.PAT_USERNAME }}:${{ secrets.PAT_TOKEN }}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" "https://api.github.com/repos/surpher/ci-build-framework/statuses/${{ github.event.client_payload.sha }}" --data '{"state":"pending","target_url":"https://github.com/surpher/ci-build-app/runs/'"${{ github.run_id }}"'","description":"Build and Test APP","context":"default"}'
+      - name:
+        run: |
+          echo "⚠️ Running some tests #1..."
+          echo "⚠️ Running some tests #2..."
+          echo "⚠️ Running some tests #3..."
+      - name: The SUCCESS status back to Framework repo PR
+        if: ${{ success() }}
+        run: |
+          echo "Send API request 'success'"
+          curl -XPOST -u "${{ secrets.PAT_USERNAME }}:${{ secrets.PAT_TOKEN }}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" "https://api.github.com/repos/surpher/ci-build-framework/statuses/${{ github.event.client_payload.sha }}" --data '{"state":"failure","target_url":"https://github.com/surpher/ci-build-app/runs/'"${{ github.run_id }}"'","description":"Build and Test APP","context":"default"}'
+      - name: Send FAIL status back to Framework repo PR
+        if: ${{ failure() }}
+        run: |
+          echo "Send API request 'failed'"
+          curl -XPOST -u "${{ secrets.PAT_USERNAME }}:${{ secrets.PAT_TOKEN }}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" "https://api.github.com/repos/surpher/ci-build-framework/statuses/${{ github.event.client_payload.sha }}" --data '{"state":"failure","target_url":"https://github.com/surpher/ci-build-app/runs/'"${{ github.run_id }}"'","description":"Build and Test APP","context":"default"}'
