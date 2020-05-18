@@ -1,11 +1,5 @@
 name: Build and test the APP
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+on: repository_dispatch
 jobs:
   run_tests:
     name: Run bogus tests
