@@ -1,0 +1,26 @@
+name: Build and test the APP
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  run_tests:
+    name: Run bogus tests
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Send In Progress status back to Framework repo PR
+        run: |
+          echo "Send API request (in progress)"
+      - name:
+        run: |
+          echo "⚠️ Running some tests #1..."
+          echo "⚠️ Running some tests #2..."
+          echo "⚠️ Running some tests #3..."
+      - name: Send Passed status back to Framework repo PR
+        run: |
+          echo "Send API request (all good)"
